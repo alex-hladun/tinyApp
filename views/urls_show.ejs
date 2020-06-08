@@ -15,6 +15,28 @@
       <div class="card-body">
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+
+        <form class="justify-content-center align-items-center form-row" method="POST" action="/urls/<%= shortURL %>/edit">
+          <div class="mb-2">
+            Edit URL:
+          </div>
+          <div class="mx-sm-3 mb-2">
+            <input type="text" class="form-control" name="editURL" placeholder="http://www.example.com">
+          </div>
+          <button type="submit" class="btn btn-primary mb-2">Edit</button>
+        </form>
+
+
+
+        <!-- <div class ="form-group row"><h3>Edit URL: </h3>
+          <form class="form-inline" method="POST" action="/url/moreSTUFFtoENTER">
+            <div 
+            <input type="text" class="form-control" id="changeURLForm" placeholder="www.e2xample.com"><button type="submit" class="btn btn-primary mb-2">Edit</button>
+          </form>
+        </div> -->
+
+
+
       </div>
     <div class="card-footer text-muted"></div>
   </div>

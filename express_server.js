@@ -12,6 +12,14 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// Redirect link.
+app.get('/u/:shortURL', (req, res) => {
+  let shortURL = req.params.shortURL;
+  let longURL = urlDatabase[shortURL];
+  console.log(longURL);
+  res.redirect(longURL);
+});
+
 // /urls Route Handler.
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
@@ -23,7 +31,6 @@ app.post('/urls', (req, res) => {
   let randStr = generateRandomString();
   // Save the URL that is posted.
   urlDatabase[randStr] = req.body.longURL;
-  // console.log(urlDatabase);
   res.redirect(`/urls/${randStr}`);
 });
 
@@ -32,6 +39,13 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   // Delete the URL for that link.
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls/`);
+});
+
+// POST request to edit
+app.post('/urls/:shortURL/edit', (req, res) => {
+  let shortURL = req.params.shortURL;
+  urlDatabase[shortURL] = req.body.editURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 
@@ -46,11 +60,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.get('/u/:shortURL', (req, res) => {
-  let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[shortURL];
-  res.redirect(longURL);
-});
+
 
 
 
