@@ -18,9 +18,13 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+
 app.post('/urls', (req, res) => {
-  console.log(req.body);
-  res.send("oK");
+  let randStr = generateRandomString();
+  // Save the URL that is posted.
+  urlDatabase[randStr] = req.body.longURL;
+  // console.log(urlDatabase);
+  res.redirect(`/urls/${randStr}`);
 });
 
 app.get('/urls/new', (req, res) => {
@@ -33,6 +37,13 @@ app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL, longURL };
   res.render("urls_show", templateVars);
 });
+
+app.get('/u/:shortURL', (req, res) => {
+  let shortURL = req.params.shortURL;
+  let longURL = urlDatabase[shortURL];
+  res.redirect(longURL);
+});
+
 
 
 app.get('/', (req, res) => {
