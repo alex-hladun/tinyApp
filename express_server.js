@@ -1,14 +1,13 @@
 const express = require('express');
 const app = express();
 const PORT = 8080;
-
-
 // set the view engine to ejs
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 
-// index page
-app.get('/', function(req, res) {
-  res.render('pages/index');
+// /urls Route Handler.
+app.get("/urls", (req, res) => {
+  let templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
 });
 
 const urlDatabase = {
@@ -30,4 +29,4 @@ app.get('/hello', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Express app server listening on post ${PORT}!`);
-})
+});
