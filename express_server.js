@@ -27,6 +27,14 @@ app.post('/urls', (req, res) => {
   res.redirect(`/urls/${randStr}`);
 });
 
+// POST request to delete
+app.post('/urls/:shortURL/delete', (req, res) => {
+  // Delete the URL for that link.
+  delete urlDatabase[req.params.shortURL];
+  res.redirect(`/urls/`);
+});
+
+
 app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
@@ -61,5 +69,4 @@ app.get('/hello', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Express app server listening on post ${PORT}!`);
-  console.log('Random string: ', generateRandomString());
 });
