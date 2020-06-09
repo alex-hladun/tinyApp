@@ -58,8 +58,6 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  // const username = req.body.username;
-  // console.log(username);
   // Cookies that have not been signed
   res.clearCookie('username');
   console.log('Cookies: ', req.cookies);
