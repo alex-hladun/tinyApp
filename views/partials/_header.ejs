@@ -1,10 +1,9 @@
 <header>
-
   <nav class="navbar navbar-expand-md navbar-dark bg-primary">
     <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link" href='/urls'>My URL's</a>
+          <a class="nav-link" href='/urls'>My URLs</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/urls/new">Create New URL</a>
@@ -19,20 +18,24 @@
     </div>
     <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
       <ul class="navbar-nav ml-auto">
-        <% if(username) { %>
+        <% if(userInfo) { %>
         <form class="form-inline" method="POST" action="/logout">
           <li class="nav-item">
-            <span class="navbar-text mr-2">Logged in as <%= username %></span>
+            <span class="navbar-text mr-2">Logged in as <%= userInfo.email %></span>
           </li>
           <li class="nav-item">
             <button class="btn btn-dark ml-auto" type="submit">Logout</a>
           </li>
         </form>
         <% } else { %>
-        <form class="form-inline" method="POST" action="/login">
-          <input class="nav-item form-control" name="username" placeholder="Username">
-          <button class="nav-item btn btn-primary" type="submit">Sign in</a>
-        </form>
+          <ul class="nav navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/register"><span class="fas fa-user"></span>Register</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/login"><span class="fas fa-sign-in-alt"></span> Login</a>
+            </li>
+          </ul>
         <% } %>
       </ul>
     </div>
