@@ -1,11 +1,13 @@
 const express = require('express');
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 const { generateRandomString } = require('./generateRandomString');
 const app = express();
 const PORT = 8080;
 // set the view engine to ejs
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -22,7 +24,10 @@ app.get('/u/:shortURL', (req, res) => {
 
 // /urls Route Handler.
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase
+  };
   res.render("urls_index", templateVars);
 });
 
@@ -41,6 +46,28 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect(`/urls/`);
 });
 
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+  console.log(username);
+  // Cookies that have not been signed
+  res.cookie('username', username);
+  console.log('Cookies: ', req.cookies);
+  // Cookies that have been signed
+  console.log('Signed Cookies: ', req.signedCookies);
+  res.redirect('/urls');
+});
+
+app.post('/logout', (req, res) => {
+  // const username = req.body.username;
+  // console.log(username);
+  // Cookies that have not been signed
+  res.clearCookie('username');
+  console.log('Cookies: ', req.cookies);
+  // Cookies that have been signed
+  console.log('Signed Cookies: ', req.signedCookies);
+  res.redirect('/urls');
+});
+
 // POST request to edit
 app.post('/urls/:shortURL/edit', (req, res) => {
   let shortURL = req.params.shortURL;
@@ -48,15 +75,22 @@ app.post('/urls/:shortURL/edit', (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  let templateVars = {
+    username: req.cookies["username"]
+  };
+
+  res.render('urls_new', templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = urlDatabase[shortURL];
-  let templateVars = { shortURL, longURL };
+  let templateVars = {
+    shortURL,
+    longURL,
+    username: req.cookies["username"],
+  };
   res.render("urls_show", templateVars);
 });
 
