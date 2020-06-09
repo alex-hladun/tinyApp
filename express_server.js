@@ -29,6 +29,16 @@ const checkEmailTaken = (email) => {
   return false;
 };
 
+const checkLogin = (loginInfo) => {
+  for (const userID in users) {
+    if (users[userID].email === loginInfo.email && users[userID].password === loginInfo.password) {
+      console.log('successful login');
+      return userID;
+    }
+  }
+  return false;
+};
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -74,6 +84,17 @@ app.get('/login', (req, res) => {
     urls: urlDatabase
   };
   res.render('login', templateVars);
+});
+
+app.post('/login', (req, res) => {
+  const loginInfo = req.body;
+  const userID = checkLogin(loginInfo);
+  if (userID) {
+    res.cookie('user_id', userID);
+    res.redirect('/urls');
+  } else {
+    res.send('403 - Invalid Login Info!');
+  }
 });
 
 
@@ -124,10 +145,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 });
 
 // app.post('/login', (req, res) => {
-//   const username = req.body.username;
-//   console.log(username);
 //   // Cookies that have not been signed
-//   res.cookie('username', username);
 //   console.log('Cookies: ', req.cookies);
 //   // Cookies that have been signed
 //   console.log('Signed Cookies: ', req.signedCookies);
