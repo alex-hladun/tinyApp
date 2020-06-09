@@ -9,6 +9,16 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+
+const urlsForUser = (id) => {
+  const urlDB = {};
+  for (const URL in urlDatabase) {
+    if (urlDatabase[URL].userID === id) {
+      urlDB[URL] = urlDatabase[URL].longURL;
+    }
+  }
+  return urlDB;
+};
 const getUserID = (id) => {
   for (const userID in users) {
     if (id === userID) {
@@ -40,60 +50,74 @@ const checkLogin = (loginInfo) => {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
 const users = {
   "userRandomID": {
     id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "pass"
+  },
+  "aJ48lW": {
+    id: "aJ48lW",
+    email: "user@example.com",
+    password: "pass"
   }
 };
 
 // Redirect link.
 app.get('/u/:shortURL', (req, res) => {
-  let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[shortURL];
-  console.log(longURL);
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL]['longURL'];
   res.redirect(longURL);
 });
 
 // /urls Route Handler.
 app.get("/urls", (req, res) => {
   const userID = getUserID(req.cookies["user_id"]);
+  if (!userID) {
+    res.redirect('/login', 403);
+  }
+
+  console.log(urlDatabase);
+
+  const userDB = urlsForUser(userID);
+
   const userInfo = users[userID];
   let templateVars = {
     userInfo,
-    urls: urlDatabase
+    urls: userDB
   };
   res.render("urls_index", templateVars);
 });
 
 app.get('/login', (req, res) => {
+  console.log(req.body);
+  console.log(req.cookies);
+  // build page with error message. Might need to include all templateVars here.
+  // const reqBody = req.body;
   const userID = getUserID(req.cookies["user_id"]);
   const userInfo = users[userID];
   let templateVars = {
     userInfo,
     urls: urlDatabase
+    // reqBody
   };
   res.render('login', templateVars);
+
 });
 
 app.post('/login', (req, res) => {
   const loginInfo = req.body;
+  console.log(loginInfo);
   const userID = checkLogin(loginInfo);
   if (userID) {
     res.cookie('user_id', userID);
     res.redirect('/urls');
   } else {
-    res.send('403 - Invalid Login Info!');
+    res.redirect(403, 'login');
   }
 });
 
@@ -131,26 +155,58 @@ app.post('/register', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  let randStr = generateRandomString();
-  // Save the URL that is posted.
-  urlDatabase[randStr] = req.body.longURL;
-  res.redirect(`/urls/${randStr}`);
+  // Get USER ID
+  const userID = getUserID(req.cookies["user_id"]);
+
+  if (userID) {
+    let randStr = generateRandomString();
+    // Save the URL that is posted.
+    urlDatabase[randStr] = {
+      longURL: req.body.longURL,
+      userID: userID
+    };
+    res.redirect(`/urls/${randStr}`);
+  }
 });
 
 // POST request to delete
 app.post('/urls/:shortURL/delete', (req, res) => {
+  // re-direct if cookie isn't registered for user
+  const userID = getUserID(req.cookies["user_id"]);
+  if (!userID) {
+    res.redirect('/login', 403);
+  }
+  let shortURL = req.params.shortURL;
+  // re-direct if user doesn't have proper access.
+
+  const userDB = urlsForUser(userID);
+  if (!userDB[shortURL]) {
+    res.redirect('/urls');
+  }
+
   // Delete the URL for that link.
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls/`);
 });
 
-// app.post('/login', (req, res) => {
-//   // Cookies that have not been signed
-//   console.log('Cookies: ', req.cookies);
-//   // Cookies that have been signed
-//   console.log('Signed Cookies: ', req.signedCookies);
-//   res.redirect('/urls');
-// });
+// POST request to edit
+app.post('/urls/:shortURL/edit', (req, res) => {
+  // re-direct if cookie isn't registered for user
+  const userID = getUserID(req.cookies["user_id"]);
+  if (!userID) {
+    res.redirect('/login', 403);
+  }
+  let shortURL = req.params.shortURL;
+  // re-direct if user doesn't have proper access.
+
+  const userDB = urlsForUser(userID);
+  if (!userDB[shortURL]) {
+    res.redirect('/urls');
+  }
+
+  urlDatabase[shortURL].longURL = req.body.editURL;
+  res.redirect(`/urls/${shortURL}`);
+});
 
 app.post('/logout', (req, res) => {
   // Cookies that have not been signed
@@ -158,14 +214,7 @@ app.post('/logout', (req, res) => {
   console.log('Cookies: ', req.cookies);
   // Cookies that have been signed
   console.log('Signed Cookies: ', req.signedCookies);
-  res.redirect('/urls');
-});
-
-// POST request to edit
-app.post('/urls/:shortURL/edit', (req, res) => {
-  let shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = req.body.editURL;
-  res.redirect(`/urls/${shortURL}`);
+  res.redirect('/login');
 });
 
 app.get('/urls/new', (req, res) => {
@@ -174,17 +223,34 @@ app.get('/urls/new', (req, res) => {
   let templateVars = {
     userInfo
   };
-  console.log(users);
-  console.log("req.Cookies[user_id]: ", req.cookies["user_id"]);
-  console.log("got userID: ", userID);
-  res.render('urls_new', templateVars);
+  // console.log(users);
+  // console.log("req.Cookies[user_id]: ", req.cookies["user_id"]);
+  // console.log("got userID: ", userID);
+  if (userID) {
+    res.render('urls_new', templateVars);
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const userID = getUserID(req.cookies["user_id"]);
+
+  // re-direct if cookie isn't registered for user
+  if (!userID) {
+    res.redirect('/login', 403);
+  }
+  
+  // re-direct if user doesn't have proper access.
+  const shortURL = req.params.shortURL;
+  const userDB = urlsForUser(userID);
+  if (!userDB[shortURL]) {
+    res.redirect('/urls');
+  }
+
+
   const userInfo = users[userID];
-  let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[shortURL];
+  let longURL = urlDatabase[shortURL].longURL;
   let templateVars = {
     shortURL,
     longURL,
