@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const { generateRandomString } = require('./generateRandomString');
 const app = express();
 const PORT = 8080;
@@ -41,7 +42,7 @@ const checkEmailTaken = (email) => {
 
 const checkLogin = (loginInfo) => {
   for (const userID in users) {
-    if (users[userID].email === loginInfo.email && users[userID].password === loginInfo.password) {
+    if (users[userID].email === loginInfo.email && bcrypt.compareSync(loginInfo.password, users[userID].password)) {
       console.log('successful login');
       return userID;
     }
@@ -82,6 +83,7 @@ app.get("/urls", (req, res) => {
   }
 
   console.log(urlDatabase);
+  console.log(users);
 
   const userDB = urlsForUser(userID);
 
@@ -146,7 +148,7 @@ app.post('/register', (req, res) => {
   users[newUserID] = {
     id: newUserID,
     email: req.body.email,
-    password: req.body.password
+    password: bcrypt.hashSync(req.body.password, 10)
   };
   // Set user_id cookie.
   res.cookie('user_id', newUserID);
