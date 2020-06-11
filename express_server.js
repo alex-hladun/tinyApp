@@ -128,6 +128,9 @@ app.get('/login/:err', (req, res) => {
 app.post('/login', (req, res) => {
   const loginInfo = req.body;
   const userID = getUserByEmail(loginInfo.email, users);
+  if (!userID) {
+    return res.redirect('login/401');
+  }
   
   bcrypt.compare(loginInfo.password, users[userID].password, function(err, result) {
     if (result) {
