@@ -38,7 +38,32 @@
 
     <%- include('partials/_header') %>
 
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">TinyApp</h1>
+        <p class="lead">Your intranet's tiniest URL shortener! We've re-directed <%= siteStats.totalViews %> times through  <%= siteStats.linkCount %> links!</p>
+      </div>
+    </div>
+
     <body>
+      <% if (errMessage) { %>
+      <% if (errMessage === "403") { %>
+        <div class="alert alert-danger text-center" role="alert">
+          <%= errMessage %> Error! You must be logged in to do that!
+        </div>
+      <% } else if (errMessage === "logout") { %>
+        <div class="alert alert-success text-center" role="alert">
+          Successfully logged out!
+        </div>
+      <% } else if (errMessage === "401") { %>
+        <div class="alert alert-danger text-center" role="alert">
+          <%= errMessage %> Error! Login credentials failed.
+        </div>
+      <% } %>
+      <% } %>
+
+
+
       <div class="login-form">
           <form action="/login" method="post">
               <h2 class="text-center">Log in</h2>       
@@ -60,28 +85,6 @@
       </div>
       </body>
 
-    <!-- <main style="margin: 1em;">
-      <h1>Login</h1>
-      <form action='/login' method="POST">
-        <div class="form-group row">
-          <div class="col-sm-10">
-            <h4>Email Address</h4>
-            <input type="email" class="form-control" name="email" placeholder="email@example.com">
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-sm-10">
-            <h4>Password</h4>
-            <input type="password" class="form-control" name="password" id="inputPassword" placeholder="Password">
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-sm-10">
-            <button type="submit" class="btn btn-primary">Login</button>
-          </div>
-        </div>
-      </form>
-    </main> -->
       <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
