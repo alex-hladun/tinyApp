@@ -13,7 +13,7 @@ app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
-  keys: ['key1','key2'],
+  keys: ['key1', 'key2'],
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
@@ -28,8 +28,8 @@ const getUserID = (id) => {
 };
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW", pageViews: []},
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", pageViews: []}
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW", pageViews: [] },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", pageViews: [] }
 };
 
 
@@ -50,37 +50,27 @@ app.get('/u/:shortURL', (req, res) => {
     sessionID = generateRandomString();
     req.session.visitorID = sessionID;
   }
-  
   const shortURL = req.params.shortURL;
   const visitObj = {
     date: new Date(),
     userID: sessionID
   };
   urlDatabase[shortURL]['pageViews'].push(visitObj);
-  console.log(urlDatabase[shortURL]['pageViews']);
-
   const longURL = urlDatabase[shortURL]['longURL'];
   res.redirect(longURL);
 });
 
 // /urls Route Handler.
 app.get('/urls', (req, res) => {
-  console.log("req.session user ID: ", req.session.userID);
-
   const userID = req.session.userID;
   if (!userID) {
-    console.log('redirecting away from /urls');
     res.redirect('/login/403');
   }
-
   const userDB = urlsForUser(userID, urlDatabase);
-  console.log(userDB);
 
   // returns a database with all of the users short-links,
   // and values for pageviews, unique views, and visit history.
   const userViewInfo = calculateViews(userID, urlDatabase);
-  console.log(userViewInfo);
-
   const userInfo = users[userID];
 
   let templateVars = {
@@ -93,7 +83,6 @@ app.get('/urls', (req, res) => {
 
 app.get('/login', (req, res) => {
   let errMessage;
-  console.log(req.body);
   // build page with error message. Might need to include all templateVars here.
   const userID = req.session.userID;
   if (userID) {
@@ -112,11 +101,7 @@ app.get('/login', (req, res) => {
 
 app.get('/login/:err', (req, res) => {
   const errMessage = req.params.err;
-
-  console.log(errMessage);
   const siteStats = calcSiteStats(urlDatabase);
-  // console.log(req.body);
-  // build page with error message. Might need to include all templateVars here.
   const userID = req.session.userID;
   if (userID) {
     res.redirect('/urls');
@@ -127,7 +112,6 @@ app.get('/login/:err', (req, res) => {
     urls: urlDatabase,
     errMessage,
     siteStats
-    // reqBody
   };
   res.render('login', templateVars);
 });
@@ -135,11 +119,9 @@ app.get('/login/:err', (req, res) => {
 
 app.post('/login', (req, res) => {
   const loginInfo = req.body;
-  console.log(loginInfo);
   const userID = checkLogin(loginInfo, users);
   if (userID) {
     req.session.userID = userID;
-    // res.cookie('user_id', userID);
     return res.redirect('/urls');
   } else {
     return res.redirect('login/401');
@@ -187,7 +169,7 @@ app.post('/register', (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
     return res.redirect('/register/empty');
   }
-  
+
   if (checkEmailTaken(req.body.email, users)) {
     return res.redirect('/register/taken');
   }
@@ -204,9 +186,6 @@ app.post('/register', (req, res) => {
     password: bcrypt.hashSync(req.body.password, 10)
   };
   req.session.userID = newUserID;
-  console.log("req.session user ID: ", req.session.userID);
-  // res.cookie('user_id', newUserID);
-  console.log(users);
   return res.redirect('/urls');
 });
 
@@ -249,12 +228,11 @@ app.delete('/urls/:shortURL', (req, res) => {
 
 app.put('/urls/:shortURL', (req, res) => {
   const userID = req.session.userID;
-  console.log("user ID from req.session: ", userID);
   if (!userID) {
     res.redirect('login/403');
   }
   const shortURL = req.params.shortURL;
-  
+
   // re-direct if user doesn't have proper access.
   const userDB = urlsForUser(userID);
   if (!userDB[shortURL]) {
@@ -268,7 +246,6 @@ app.put('/urls/:shortURL', (req, res) => {
 app.post('/logout', (req, res) => {
   // Cookies that have not been signed
   req.session = null;
-  console.log('Session cookies cleared');
   return res.redirect('/login/logout');
 });
 
@@ -279,9 +256,6 @@ app.get('/urls/new', (req, res) => {
   let templateVars = {
     userInfo
   };
-  // console.log(users);
-  // console.log("req.Cookies[user_id]: ", req.cookies["user_id"]);
-  // console.log("got userID: ", userID);
   if (userID) {
     return res.render('urls_new', templateVars);
   } else {
@@ -302,7 +276,6 @@ app.get('/error', (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const userID = getUserID(req.session.userID);
-  console.log(`Request for ${shortURL}`);
   // re-direct if cookie isn't registered for user
   if (!userID) {
     return res.redirect('/login/403');
@@ -317,7 +290,6 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const userViewInfo = calculateViews(userID, urlDatabase);
   const viewInfo = userViewInfo[shortURL];
-  console.log(viewInfo);
 
   const userInfo = users[userID];
   let longURL = urlDatabase[shortURL].longURL;
