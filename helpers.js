@@ -9,17 +9,6 @@ const getUserByEmail = function(email, database) {
   return null;
 };
 
-const checkLogin = (loginInfo, userDatabase) => {
-  // Takes in login details and compares to stored data.
-  for (const userID in userDatabase) {
-    if (userDatabase[userID].email === loginInfo.email && bcrypt.compareSync(loginInfo.password, userDatabase[userID].password)) {
-      console.log('successful login');
-      return userID;
-    }
-  }
-  return false;
-};
-
 const urlsForUser = (id, urlDatabase) => {
   const urlDB = {};
   for (const URL in urlDatabase) {
@@ -88,7 +77,6 @@ const calcSiteStats = (urlDatabase) => {
 
 module.exports = {
   getUserByEmail,
-  checkLogin,
   urlsForUser,
   checkEmailTaken,
   calculateViews,

@@ -3,10 +3,11 @@ const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
 const { generateRandomString } = require('./generateRandomString');
-const { checkLogin, urlsForUser, checkEmailTaken, calculateViews, calcSiteStats } = require('./helpers');
+const { getUserByEmail, urlsForUser, checkEmailTaken, calculateViews, calcSiteStats } = require('./helpers');
 const methodOverride = require('method-override');
 const app = express();
 const PORT = 8080;
+const saltRounds = 10;
 // set the view engine to ejs
 app.set("view engine", "ejs");
 app.use(methodOverride('_method'));
@@ -126,13 +127,16 @@ app.get('/login/:err', (req, res) => {
 
 app.post('/login', (req, res) => {
   const loginInfo = req.body;
-  const userID = checkLogin(loginInfo, users);
-  if (userID) {
-    req.session.userID = userID;
-    return res.redirect('/urls');
-  } else {
-    return res.redirect('login/401');
-  }
+  const userID = getUserByEmail(loginInfo.email, users);
+  
+  bcrypt.compare(loginInfo.password, users[userID].password, function(err, result) {
+    if (result) {
+      req.session.userID = userID;
+      return res.redirect('/urls');
+    } else {
+      return res.redirect('login/401');
+    }
+  });
 });
 
 
@@ -187,10 +191,15 @@ app.post('/register', (req, res) => {
     newUserID = req.session.visitorID;
   }
 
+  
+
   users[newUserID] = {
     id: newUserID,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 10)
+    password: bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+      // Store hash in your password DB.
+      users[newUserID].password = hash;
+    })
   };
   req.session.userID = newUserID;
   return res.redirect('/urls');
