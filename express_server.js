@@ -45,12 +45,15 @@ const users = {
 app.get('/u/:shortURL', (req, res) => {
   const userID = req.session.userID;
   let sessionID = userID;
+  const shortURL = req.params.shortURL;
   // generate user id if it doesn't exist
   if (!userID) {
     sessionID = generateRandomString();
     req.session.visitorID = sessionID;
   }
-  const shortURL = req.params.shortURL;
+  if (!urlDatabase[shortURL]) {
+    res.redirect('/error');
+  }
   const visitObj = {
     date: new Date(),
     userID: sessionID
