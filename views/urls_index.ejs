@@ -17,8 +17,11 @@
     <table class="table">
       <thead>
         <tr>
+          <th scope="col">Date Created</th>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
+          <th scope="col" class="text-center">Views</th>
+          <th scope="col" class="text-center">Unique Views</th>
           <th scope="col" class="text-center">Edit</th>
           <th scope="col" class="text-center">Delete</th>
         </tr>
@@ -26,8 +29,11 @@
       <tbody>
         <% for(let url in urls) { %>
           <tr>
+            <td><%= userViewInfo[url].createDate %></td>
             <td><a href="/u/<%= url %>"><%= url %></a></td>
             <td><%= urls[url] %></td>
+            <td class="text-center"><%= userViewInfo[url].visits %></td>
+            <td class="text-center"><%= userViewInfo[url].uniqueVisits %></td>
             <td class="text-center">
               <form method="GET" action="/urls/<%= url %>">
                 <button type="submit" class="btn btn-light mb-2">Edit</button>

@@ -14,6 +14,19 @@
 
     <%- include('partials/_header') %>
 
+    <% if (errMessage) { %>
+      <br></br>
+    <% if (errMessage === "empty") { %>
+      <div class="alert alert-danger text-center" role="alert">
+        Username or Password Empty!
+      </div>
+    <% } else if (errMessage === "taken") { %>
+      <div class="alert alert-danger text-center" role="alert">
+        Email has already been registered
+      </div>
+    <% } %>
+    <% } %>
+
     <main style="margin: 1em;">
       <h1>Register</h1>
       <form action='/register' method="POST">
