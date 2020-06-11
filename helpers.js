@@ -41,20 +41,6 @@ const checkEmailTaken = (email, userDatabase) => {
   return false;
 };
 
-const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW", pageViews: [
-    { date: '2020-06-10T03:47:47.588Z', userID: 'c8v4o2' },
-    { date: '2020-06-10T03:47:48.660Z', userID: 'c8sd4o2' },
-    { date: '2020-06-10T03:47:49.431Z', userID: 'c8vfdo2' },
-    { date: '2020-06-10T03:47:50.123Z', userID: 'c8v4o2' }
-  ]
-  },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", pageViews: [
-    { date: '2020-06-10T03:47:50.123Z', userID: 'c8v4o2' },
-    { date: '2020-06-10T03:47:50.123Z', userID: 'c8v4o2' }
-  ]}
-};
-
 const calculateViews = (id, urlDatabase) => {
   // returns a database with all of the users short-links,
   // and values for pageviews, unique views, and visit history.

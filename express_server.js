@@ -88,9 +88,13 @@ app.get('/login', (req, res) => {
   let errMessage;
   // build page with error message. Might need to include all templateVars here.
   const userID = req.session.userID;
+  if (!users[userID]) {
+    req.session = null;
+  }
   if (userID) {
     res.redirect('/urls');
   }
+  
   const siteStats = calcSiteStats(urlDatabase);
   const userInfo = users[userID];
   let templateVars = {
